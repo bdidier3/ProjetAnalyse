@@ -1,0 +1,113 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\geometry{margin=2.2cm}
+
+\title{Projet Big Data\\Analyse tabulaire / series temporelles avec Python}
+\author{BUT Informatique}
+\date{Avril 2026}
+
+\begin{document}
+\maketitle
+
+\section{Description du projet}
+Ce projet vise a exploiter des donnees industrielles massives afin d'en extraire des informations utiles a la prise de decision. Le jeu de donnees principal est \texttt{extrusion.csv} (serie temporelle), accompagne de \texttt{stat.csv} (statistiques de variables).
+
+\section{Objectifs}
+Les objectifs couverts sont:
+\begin{itemize}
+  \item exploration des donnees (structure, motifs, anomalies),
+  \item pretraitement (valeurs manquantes, types, dedoublonnage),
+  \item visualisation (lineaire, dispersion, barres, heatmap, KDE),
+  \item interpretation des resultats et derivation d'informations.
+\end{itemize}
+
+\section{Jeu de donnees et chargement}
+\subsection{Nature des donnees}
+Le fichier \texttt{extrusion.csv} contient des mesures temporelles industrielles (pression, debit, epaisseur, etc.).
+
+\subsection{Chargement}
+Le chargement a ete realise avec \texttt{pandas.read\_csv()} en selectionnant un sous-ensemble de variables pertinentes (forte variance + variables metier), pour conserver une analyse lisible et robuste.
+
+\section{Pretraitement}
+\subsection{Qualite initiale}
+Resultats mesures sur l'echantillon de travail:
+\begin{itemize}
+  \item dimensions initiales: \textbf{226536 lignes x 15 colonnes},
+  \item valeurs manquantes avant traitement: \textbf{1845},
+  \item doublons avant traitement: \textbf{0}.
+\end{itemize}
+
+\subsection{Techniques appliquees}
+\begin{itemize}
+  \item Conversion de types: conversion numerique explicite des colonnes de mesures.
+  \item Valeurs manquantes: imputation par \textbf{mediane}.
+  \item Justification de l'imputation mediane: plus robuste que la moyenne face aux valeurs extremes (outliers) frequentes en donnees industrielles.
+  \item Doublons: verification puis suppression via \texttt{drop\_duplicates()}.
+  \item Feature engineering: creation de \texttt{pressure\_diff}, \texttt{pressure\_roll\_mean\_30} et \texttt{hour}.
+\end{itemize}
+
+Apres traitement:
+\begin{itemize}
+  \item valeurs manquantes: \textbf{0},
+  \item doublons: \textbf{0},
+  \item dimensions finales: \textbf{226536 lignes x 19 colonnes}.
+\end{itemize}
+
+\section{EDA et visualisations}
+\subsection{Statistiques sommaires}
+Les statistiques descriptives ont ete calculees avec \texttt{df.describe()} directement dans le notebook.
+
+\subsection{Graphiques realises}
+\begin{itemize}
+  \item lineaire (tendance temporelle),
+  \item dispersion (debit vs pression),
+  \item barres (pression moyenne par heure),
+  \item heatmap de correlation,
+  \item histogramme + KDE,
+  \item boxplot,
+  \item visualisation interactive Plotly (bonus).
+\end{itemize}
+
+Les figures sont produites et interpretees directement dans le notebook, sans generation de fichiers externes additionnels.
+
+\section{Valeurs aberrantes et anomalies}
+\subsection{Outliers (IQR)}
+Le nombre de valeurs aberrantes detectees sur la pression par la methode IQR est de \textbf{29865}. Ce volume eleve peut refleter des regimes de production differents et non uniquement des erreurs.
+
+\subsection{Anomalies statistiques (Z-score, bonus)}
+Le nombre d'anomalies detectees avec la regle $|z| > 3$ sur la pression est faible, ce qui suggere surtout des changements de regime plutot que des erreurs massives.
+
+\section{Manipulation des donnees}
+\subsection{Grouping et aggregation}
+Les heures de plus forte pression moyenne sont: 20h, 19h, 13h, 21h, 12h.
+
+\subsection{Filtrage et tri}
+Les 5\% plus fortes pressions ont ete extraites puis triees, avec des maxima observes autour de 595.
+
+\subsection{Analyse temporelle (bonus)}
+La moyenne mobile sur 30 pas de temps a ete appliquee pour lisser le bruit et faire ressortir les tendances globales.
+
+\section{Interpretation et conclusions}
+\begin{itemize}
+  \item Le pipeline de pretraitement assure une base propre (0 valeurs manquantes restantes) pour l'analyse.
+  \item Les correlations positives entre pression et debit suggerent des interactions fortes des variables de process.
+  \item Les variations horaires indiquent des plages operationnelles plus chargees, exploitables pour le pilotage qualite.
+  \item Le grand nombre d'outliers IQR invite a distinguer les regimes operationnels des erreurs de capteurs.
+\end{itemize}
+
+\section{Livrables}
+\begin{itemize}
+  \item Notebook principal: \texttt{projet\_bigdata\_extrusion.ipynb}
+  \item Rapport LaTeX: \texttt{rapport\_final.tex}
+  \item Donnees brutes: \texttt{extrusion.csv}, \texttt{legend.xlsx}, \texttt{stat.csv}
+\end{itemize}
+
+\end{document}
