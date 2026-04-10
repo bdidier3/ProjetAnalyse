@@ -10,7 +10,7 @@
 \usepackage{amsmath}
 \geometry{margin=2.2cm}
 
-\title{Projet Big Data\\Analyse tabulaire / series temporelles avec Python}
+\title{Projet Big Data\\Analyse tabulaire / séries temporelles avec Python}
 \author{Lorenzini Thomas \and Baptiste DIDIER \and Antoine DUARTE}
 \date{Avril 2026}
 
@@ -20,117 +20,119 @@
 \newpage
 
 \section{Description du projet}
-Ce projet vise a exploiter des donnees industrielles massives afin d'en extraire des informations utiles a la prise de decision. Le jeu de donnees principal est \texttt{extrusion.csv} (serie temporelle), accompagne de \texttt{stat.csv} (statistiques de variables).
+Ce projet vise à exploiter des données industrielles massives afin d'en extraire des informations utiles à la prise de décision. Le jeu de données principal est \texttt{extrusion.csv} (série temporelle), accompagné de \texttt{stat.csv} (statistiques de variables).
 
 \section{Objectifs}
-Les objectifs couverts sont:
+Les objectifs couverts sont :
 \begin{itemize}
-  \item exploration des donnees (structure, motifs, anomalies),
-  \item pretraitement (valeurs manquantes, types, dedoublonnage),
-  \item visualisation (lineaire, dispersion, barres, heatmap, KDE),
-  \item interpretation des resultats et derivation d'informations.
+  \item exploration des données (structure, motifs, anomalies),
+  \item prétraitement (valeurs manquantes, types, dédoublonnage),
+  \item visualisation (linéaire, dispersion, barres, heatmap, KDE),
+  \item interprétation des résultats et dérivation d'informations.
 \end{itemize}
 
-\section{Jeu de donnees et chargement}
-\subsection{Source du jeu de donnees}
-Le jeu de donnees utilise provient de Kaggle:\\
-\href{https://www.kaggle.com/datasets/podsyp/find-a-defect-in-the-production-extrusion-line}{https://www.kaggle.com/datasets/podsyp/find-a-defect-in-the-production-extrusion-line}
+\section{Jeu de données et chargement}
+\subsection{Source du jeu de données}
+Le jeu de données exploité est le fichier \texttt{extrusion.csv} fourni dans le cadre du projet (données de ligne d'extrusion), complété par \texttt{stat.csv} pour le choix des variables.
 
-\subsection{Pourquoi ce jeu de donnees}
-Ce jeu de donnees a ete retenu pour trois raisons principales:
+\subsection{Pourquoi ce jeu de données}
+Ce jeu de données a été retenu pour trois raisons principales :
 \begin{itemize}
-  \item il s'agit d'une vraie serie temporelle industrielle, donc pertinente pour un projet big data applique;
-  \item le volume est important (grand nombre d'observations et nombreuses variables capteurs), ce qui permet de pratiquer des techniques de pretraitement realistes;
-  \item le contexte de ligne d'extrusion est propice a la detection d'anomalies et a l'analyse des relations entre mesures (pression, debit, epaisseur), en lien direct avec les objectifs du projet.
+  \item il s'agit d'une vraie série temporelle industrielle, donc pertinente pour un projet big data appliqué ;
+  \item le volume est important (grand nombre d'observations et nombreuses variables capteurs), ce qui permet de pratiquer des techniques de prétraitement réalistes ;
+  \item le contexte de ligne d'extrusion est propice à la détection d'anomalies et à l'analyse des relations entre mesures (pression, débit, épaisseur), en lien direct avec les objectifs du projet.
 \end{itemize}
 
-\subsection{Nature des donnees}
-Le fichier \texttt{extrusion.csv} contient des mesures temporelles industrielles (pression, debit, epaisseur, etc.).
+\subsection{Nature des données}
+Le fichier \texttt{extrusion.csv} contient des mesures temporelles industrielles (pression, débit, épaisseur, etc.).
 
 \subsection{Chargement}
-Le chargement a ete realise avec \texttt{pandas.read\_csv()} en selectionnant un sous-ensemble de variables pertinentes (forte variance + variables metier), pour conserver une analyse lisible et robuste.
+Le chargement a été réalisé avec \texttt{pandas.read\_csv()} en sélectionnant un sous-ensemble de variables pertinentes (forte variance + variables métier), pour conserver une analyse lisible et robuste.
 
-Le sous-ensemble de variables est un compromis entre:
+Le sous-ensemble de variables est un compromis entre :
 \begin{itemize}
-  \item representativite du procede,
-  \item lisibilite des analyses et visualisations,
-  \item cout de calcul raisonnable sur machine etudiante.
+  \item représentativité du procédé,
+  \item lisibilité des analyses et visualisations,
+  \item coût de calcul raisonnable sur machine étudiante.
 \end{itemize}
 
-\section{Pretraitement}
-\subsection{Qualite initiale}
-Resultats mesures sur l'echantillon de travail:
+\section{Prétraitement}
+\subsection{Qualité initiale}
+Résultats mesurés sur l'échantillon de travail :
 \begin{itemize}
   \item dimensions initiales: \textbf{226536 lignes x 15 colonnes},
   \item valeurs manquantes avant traitement: \textbf{1845},
   \item doublons avant traitement: \textbf{0}.
 \end{itemize}
 
-\subsection{Techniques appliquees}
+\subsection{Techniques appliquées}
 \begin{itemize}
-  \item Conversion de types: conversion numerique explicite des colonnes de mesures.
-  \item Valeurs manquantes: imputation par \textbf{mediane}.
-  \item Justification de l'imputation mediane: plus robuste que la moyenne face aux valeurs extremes (outliers) frequentes en donnees industrielles.
-  \item Doublons: verification puis suppression via \texttt{drop\_duplicates()}.
-  \item Feature engineering: creation de \texttt{pressure\_diff}, \texttt{pressure\_roll\_mean\_30} et \texttt{hour}.
+  \item Conversion de types: conversion numérique explicite des colonnes de mesures.
+  \item Valeurs manquantes: imputation par \textbf{médiane}.
+  \item Justification de l'imputation médiane: plus robuste que la moyenne face aux valeurs extrêmes (outliers) fréquentes en données industrielles.
+  \item Doublons: vérification puis suppression via \texttt{drop\_duplicates()}.
+  \item Valeurs incohérentes: conversion avec \texttt{errors='coerce'} pour transformer les entrées non numériques en \texttt{NaN}, puis traitement par imputation médiane.
+  \item Feature engineering: création de \texttt{pressure\_diff}, \texttt{pressure\_roll\_mean\_30} et \texttt{hour}.
 \end{itemize}
 
-Apres traitement:
+Après traitement:
 \begin{itemize}
   \item valeurs manquantes: \textbf{0},
   \item doublons: \textbf{0},
-  \item dimensions finales: \textbf{226536 lignes x 19 colonnes}.
+  \item dimensions finales après prétraitement: \textbf{226536 lignes x 18 colonnes}.
 \end{itemize}
 
 \section{EDA et visualisations}
 \subsection{Statistiques sommaires}
-Les statistiques descriptives ont ete calculees avec \texttt{df.describe()} directement dans le notebook.
+Les statistiques descriptives ont été calculées avec \texttt{df.describe()} directement dans le notebook.
 
-Ces statistiques permettent d'identifier rapidement:
+Ces statistiques permettent d'identifier rapidement :
 \begin{itemize}
   \item les plages de variation,
-  \item les ecarts de dispersion entre variables,
-  \item les premieres incoherences potentielles avant modelisation.
+  \item les écarts de dispersion entre variables,
+  \item les premières incohérences potentielles avant modélisation.
 \end{itemize}
 
-\subsection{Graphiques realises}
+\subsection{Graphiques réalisés}
 \begin{itemize}
-  \item lineaire (tendance temporelle),
-  \item dispersion (debit vs pression),
+  \item linéaire (tendance temporelle),
+  \item dispersion (débit vs pression),
   \item barres (pression moyenne par heure),
-  \item heatmap de correlation,
+  \item heatmap de corrélation,
   \item histogramme + KDE,
   \item boxplot,
   \item visualisation interactive Plotly (bonus).
 \end{itemize}
 
-Les figures sont produites et interpretees directement dans le notebook, sans generation de fichiers externes additionnels.
+Les figures sont produites et interprétées directement dans le notebook, sans génération de fichiers externes additionnels.
 
 \section{Valeurs aberrantes et anomalies}
 \subsection{Outliers (IQR)}
-Le nombre de valeurs aberrantes detectees sur la pression par la methode IQR est de \textbf{29865}. Ce volume eleve peut refleter des regimes de production differents et non uniquement des erreurs.
+Le nombre de valeurs aberrantes détectées sur la pression par la méthode IQR est de \textbf{29865}. Ce volume élevé peut refléter des régimes de production différents et non uniquement des erreurs.
+
+Décision appliquée : les outliers n'ont pas été supprimés automatiquement, car ils peuvent correspondre à des états réels du procédé (arrêts, redémarrages, transitions).
 
 \subsection{Anomalies statistiques (Z-score, bonus)}
-Le nombre d'anomalies detectees avec la regle $|z| > 3$ sur la pression est faible, ce qui suggere surtout des changements de regime plutot que des erreurs massives.
+Le nombre d'anomalies détectées avec la règle $|z| > 3$ sur la pression est faible, ce qui suggère surtout des changements de régime plutôt que des erreurs massives.
 
-\section{Manipulation des donnees}
-\subsection{Grouping et aggregation}
+\section{Manipulation des données}
+\subsection{Grouping et agrégation}
 Les heures de plus forte pression moyenne sont: 20h, 19h, 13h, 21h, 12h.
 
 \subsection{Filtrage et tri}
-Les 5\% plus fortes pressions ont ete extraites puis triees, avec des maxima observes autour de 595.
+Les 5\% plus fortes pressions ont été extraites puis triées, avec des maxima observés autour de 595.
 
 \subsection{Analyse temporelle (bonus)}
-La moyenne mobile sur 30 pas de temps a ete appliquee pour lisser le bruit et faire ressortir les tendances globales.
+La moyenne mobile sur 30 pas de temps a été appliquée pour lisser le bruit et faire ressortir les tendances globales.
 
-\section{Interpretation et conclusions}
+\section{Interprétation et conclusions}
 \begin{itemize}
-  \item Le pipeline de pretraitement assure une base propre (0 valeurs manquantes restantes) pour l'analyse.
-  \item Les correlations positives entre pression et debit suggerent des interactions fortes des variables de process.
-  \item Les variations horaires indiquent des plages operationnelles plus chargees, exploitables pour le pilotage qualite.
-  \item Le grand nombre d'outliers IQR invite a distinguer les regimes operationnels des erreurs de capteurs.
+  \item Le pipeline de prétraitement assure une base propre (0 valeurs manquantes restantes) pour l'analyse.
+  \item Les corrélations positives entre pression et débit suggèrent des interactions fortes des variables de process.
+  \item Les variations horaires indiquent des plages opérationnelles plus chargées, exploitables pour le pilotage qualité.
+  \item Le grand nombre d'outliers IQR invite à distinguer les régimes opérationnels des erreurs de capteurs.
 \end{itemize}
 
-En synthese, le jeu de donnees choisi est pertinent pour illustrer un cycle complet de science des donnees: acquisition, nettoyage, exploration, extraction d'informations et interpretation metier. Les resultats obtenus montrent qu'une approche methodique permet deja de degager des indicateurs exploitables pour le suivi de production et la qualite.
+En synthèse, le jeu de données choisi est pertinent pour illustrer un cycle complet de science des données: acquisition, nettoyage, exploration, extraction d'informations et interprétation métier. Les résultats obtenus montrent qu'une approche méthodique permet déjà de dégager des indicateurs exploitables pour le suivi de production et la qualité.
 
 \end{document}
