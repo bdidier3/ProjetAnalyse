@@ -8,6 +8,7 @@
 \usepackage{longtable}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{graphicx}
 \geometry{margin=2.2cm}
 
 \title{Projet Big Data\\Analyse tabulaire / séries temporelles avec Python}
@@ -46,6 +47,8 @@ Ce jeu de données a été retenu pour trois raisons principales :
 \subsection{Nature des données}
 Le fichier \texttt{extrusion.csv} contient des mesures temporelles industrielles (pression, débit, épaisseur, etc.).
 
+Le volume élevé de données (plus de 226000 observations) justifie l'utilisation d'outils adaptés comme Pandas et de techniques de réduction de complexité (sélection de variables pertinentes, agrégations ciblées et lissages temporels) pour conserver des temps de traitement raisonnables.
+
 \subsection{Chargement}
 Le chargement a été réalisé avec \texttt{pandas.read\_csv()} en sélectionnant un sous-ensemble de variables pertinentes (forte variance + variables métier), pour conserver une analyse lisible et robuste.
 
@@ -60,9 +63,9 @@ Le sous-ensemble de variables est un compromis entre :
 \subsection{Qualité initiale}
 Résultats mesurés sur l'échantillon de travail :
 \begin{itemize}
-  \item dimensions initiales: \textbf{226536 lignes x 15 colonnes},
-  \item valeurs manquantes avant traitement: \textbf{1845},
-  \item doublons avant traitement: \textbf{0}.
+  \item dimensions initiales : \textbf{226536 lignes x 15 colonnes},
+  \item valeurs manquantes avant traitement : \textbf{1845},
+  \item doublons avant traitement : \textbf{0}.
 \end{itemize}
 
 \subsection{Techniques appliquées}
@@ -75,11 +78,11 @@ Résultats mesurés sur l'échantillon de travail :
   \item Feature engineering: création de \texttt{pressure\_diff}, \texttt{pressure\_roll\_mean\_30} et \texttt{hour}.
 \end{itemize}
 
-Après traitement:
+Après traitement :
 \begin{itemize}
-  \item valeurs manquantes: \textbf{0},
-  \item doublons: \textbf{0},
-  \item dimensions finales après prétraitement: \textbf{226536 lignes x 18 colonnes}.
+  \item valeurs manquantes : \textbf{0},
+  \item doublons : \textbf{0},
+  \item dimensions finales après prétraitement : \textbf{226536 lignes x 18 colonnes}.
 \end{itemize}
 
 \section{EDA et visualisations}
@@ -104,7 +107,25 @@ Ces statistiques permettent d'identifier rapidement :
   \item visualisation interactive Plotly (bonus).
 \end{itemize}
 
-Les figures sont produites et interprétées directement dans le notebook, sans génération de fichiers externes additionnels.
+Les figures sont produites et interprétées dans le notebook. Pour améliorer la lisibilité du livrable PDF, trois visualisations clés sont intégrées ci-dessous.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/line_pressure.png}
+  \caption{Tendance temporelle de la pression avec moyenne mobile (30 points).}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.75\textwidth]{figures/heatmap_corr.png}
+  \caption{Matrice de corrélation entre les principales variables numériques.}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/boxplot_pressure.png}
+  \caption{Boxplot de la pression pour visualiser la dispersion et les valeurs aberrantes.}
+\end{figure}
 
 \section{Valeurs aberrantes et anomalies}
 \subsection{Outliers (IQR)}
@@ -117,13 +138,15 @@ Le nombre d'anomalies détectées avec la règle $|z| > 3$ sur la pression est f
 
 \section{Manipulation des données}
 \subsection{Grouping et agrégation}
-Les heures de plus forte pression moyenne sont: 20h, 19h, 13h, 21h, 12h.
+Les heures présentant les pressions moyennes les plus élevées sont : 20h, 19h, 13h, 21h et 12h.
 
 \subsection{Filtrage et tri}
 Les 5\% plus fortes pressions ont été extraites puis triées, avec des maxima observés autour de 595.
 
 \subsection{Analyse temporelle (bonus)}
 La moyenne mobile sur 30 pas de temps a été appliquée pour lisser le bruit et faire ressortir les tendances globales.
+
+En complément, l'analyse par heure met en évidence une périodicité journalière (variations récurrentes de la pression selon les heures de la journée), ce qui constitue un signal de saisonnalité intra-journalière.
 
 \section{Interprétation et conclusions}
 \begin{itemize}
@@ -133,6 +156,9 @@ La moyenne mobile sur 30 pas de temps a été appliquée pour lisser le bruit et
   \item Le grand nombre d'outliers IQR invite à distinguer les régimes opérationnels des erreurs de capteurs.
 \end{itemize}
 
-En synthèse, le jeu de données choisi est pertinent pour illustrer un cycle complet de science des données: acquisition, nettoyage, exploration, extraction d'informations et interprétation métier. Les résultats obtenus montrent qu'une approche méthodique permet déjà de dégager des indicateurs exploitables pour le suivi de production et la qualité.
+En synthèse, le jeu de données choisi est pertinent pour illustrer un cycle complet de science des données : acquisition, nettoyage, exploration, extraction d'informations et interprétation métier. Les résultats obtenus montrent qu'une approche méthodique permet déjà de dégager des indicateurs exploitables pour le suivi de production et la qualité. Ces résultats pourraient être utilisés dans un cadre industriel réel pour anticiper des dérives du procédé ou améliorer le contrôle qualité.
+
+\subsection*{Limites et perspectives}
+Cette étude présente néanmoins certaines limites : bruit de mesure, capteurs potentiellement imparfaits, et absence d'informations contextuelles détaillées (maintenance, changements d'outillage, consignes opérateur) qui aideraient à mieux expliquer certaines anomalies. Une suite naturelle serait d'enrichir les données avec ces variables de contexte et de comparer plusieurs méthodes de détection d'anomalies.
 
 \end{document}
